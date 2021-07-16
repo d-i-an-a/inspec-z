@@ -40,5 +40,6 @@ An example configuration and data files are provided.
 3. Run main program: `python inspecz.py config_files/example.yaml`
 4. Merge results with initial data file and get report: `python finalize.py config_files/example.yaml`
 
-![inspecz_main_screenshot](https://user-images.githubusercontent.com/48242007/116094996-e95b0780-a69f-11eb-8010-a1cc7c2b9633.png)
+<!-- ![inspecz_main_screenshot](https://user-images.githubusercontent.com/48242007/116094996-e95b0780-a69f-11eb-8010-a1cc7c2b9633.png) -->
 
+![Isnpecz_v1](https://user-images.githubusercontent.com/48242007/125954299-a3b4f8ad-2991-4a89-8843-363f468642ff.png)
