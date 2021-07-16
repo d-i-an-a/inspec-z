@@ -17,6 +17,7 @@ class Verify(Spectrum):
         matplotlib.rcParams['figure.autolayout'] = False
         # spectrum smooth factor
         self.box_size = config['box_size']
+        self.sm_temp = self.box_size
         # padding around 1d spec plot
         self.padding = config['padding']
 
@@ -158,7 +159,7 @@ class Verify(Spectrum):
         self._update_text()
         pass
 
-    def _update_1d(self):
+    def _update_1d(self,update_axes=True):
         from astropy.convolution import convolve, Box1DKernel
         from astropy.stats import sigma_clip
         import numpy as np
@@ -170,29 +171,42 @@ class Verify(Spectrum):
             l.set_ydata(self.flux)
 
         # Smoothed spectrum
-        kernel = Box1DKernel(self.box_size)
+        kernel = Box1DKernel(self.sm_temp)
         self.smoothed_flux = convolve(self.flux, kernel)
         
         for l in self.spec1d_smoothed:
             l.set_xdata(self.wave)
             l.set_ydata(self.smoothed_flux)
-        
-        self.ax.set_xlim([np.min(self.sp1d_wave), np.max(self.sp1d_wave)])
+       
+        if update_axes == True:
+            self.ax.set_xlim([np.min(self.sp1d_wave), np.max(self.sp1d_wave)])
 
-        # set axis limits ignoring extreme values 
-        self.flux_sigma_clipped = sigma_clip(self.smoothed_flux, sigma=self.config['sigma_clip'])
-        self.ax.set_ylim([np.min(self.flux_sigma_clipped)*(1-self.padding), 
-                          np.max(self.flux_sigma_clipped)*(1+self.padding)])
+            # set axis limits ignoring extreme values 
+            self.flux_sigma_clipped = sigma_clip(self.smoothed_flux, sigma=self.config['sigma_clip'])
+            self.ax.set_ylim([np.min(self.flux_sigma_clipped)*(1-self.padding), 
+                              np.max(self.flux_sigma_clipped)*(1+self.padding)])
         
-        self._update_emlines(self.z_temp)
+            self._update_emlines(self.z_temp)
         
         # update title
         self.ax.set_title(self.id_)
 
         self._update_text()
-        plt.draw()
-        pass
+        
+        # Update legend
+        # get old labels
+        handles, labels = self.ax.get_legend_handles_labels()
+        # update smoothing parameter
+        new_labels = []
+        for label in labels:
+            if 'box_size' in label:
+                label = f'box_size {self.sm_temp}'
+            new_labels.append(label)
+        # Draw new legend
+        self.ax.legend(handles,new_labels, loc=3)
 
+        # Update plot
+        plt.draw()
         
 
     def _update_emlines(self, val):
@@ -245,6 +259,14 @@ class Verify(Spectrum):
         self._update_emlines(self.z_temp)
         pass
 
+    def _set_value_box_size(self, val):
+        try:
+            self.sm_temp = int(val)
+            self.sbox.set_val(self.sm_temp)
+            self._update_1d(update_axes=False)
+        except:
+            pass
+       
     def _save(self, event):
         # save progress in buffer
         self._update_buffer()
@@ -366,7 +388,7 @@ class Verify(Spectrum):
         kernel = Box1DKernel(self.box_size)
         self.smoothed_flux = convolve(self.sp1d_flux, kernel)
         self.spec1d_smoothed = self.ax.plot(self.sp1d_wave, self.smoothed_flux, '', 
-                                        color='k', alpha=1, label=f'box_size {self.box_size}')
+                                        color='k', alpha=1, label=f'box_size {self.sm_temp}')
         self.flux_5s_clipped = sigma_clip(self.smoothed_flux, sigma=self.config['sigma_clip'])
 
         # Mask
@@ -451,13 +473,18 @@ class Verify(Spectrum):
         axsave = plt.axes([0.85, 0.0125, 0.1, 0.05])
         bsave2 = Button(axsave, 'Verified as is')
         bsave2.on_clicked(self._save2)
-		
+
         # interactive redshift value box
-        ax_zbox = plt.axes([0.87, 0.13, 0.08, 0.05], facecolor=None)
+        ax_zbox = plt.axes([0.82, 0.13, 0.075, 0.05], facecolor=None)
         self.zbox = TextBox(ax_zbox, "z:")
         self.zbox.set_val(round(self.z_temp, 6))
         self.zbox.on_submit(self._set_value_z)
 
+        # box smooth value control
+        ax_smbox = plt.axes([0.945, 0.13, 0.03, 0.05], facecolor=None)
+        self.sbox = TextBox(ax_smbox, "smooth:")
+        self.sbox.set_val(self.sm_temp)
+        self.sbox.on_submit(self._set_value_box_size)
         
         # previous spectrum 
         axprev = plt.axes([0.82, 0.07, 0.075, 0.05])
