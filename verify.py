@@ -250,6 +250,17 @@ class Verify(Spectrum):
         self._update_buffer()
         pass
 
+    def _save2(self, event):
+        # set verified flag, save to buffer, and advance to next spectrum
+        self._set_verified('Y')
+        self._update_buffer()
+        
+        if self.idx+1 < len(self.fcat):
+            self.idx += 1
+            self.get_1d()
+        else:
+            print('Reached the end of the catalog.')
+
     def _save_buffer(self, event):
         self._update_buffer()
 
@@ -436,7 +447,11 @@ class Verify(Spectrum):
         bsave = Button(axsave, 'Save to buffer')
         bsave.on_clicked(self._save)
         
-
+        # one step verify, save to buffer, next spectrum button
+        axsave = plt.axes([0.64, 0.0125, 0.2, 0.05])
+        bsave2 = Button(axsave, 'Save to buffer, verified, next')
+        bsave2.on_clicked(self._save2)
+		
         # interactive redshift value box
         ax_zbox = plt.axes([0.87, 0.13, 0.08, 0.05], facecolor=None)
         self.zbox = TextBox(ax_zbox, "z:")
@@ -495,4 +510,3 @@ if __name__ == "__main__":
 
     s1 = Verify(fcat, config)
     s1.verify(show=True)
-    
