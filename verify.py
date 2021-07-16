@@ -448,8 +448,8 @@ class Verify(Spectrum):
         bsave.on_clicked(self._save)
         
         # one step verify, save to buffer, next spectrum button
-        axsave = plt.axes([0.64, 0.0125, 0.2, 0.05])
-        bsave2 = Button(axsave, 'Save to buffer, verified, next')
+        axsave = plt.axes([0.85, 0.0125, 0.1, 0.05])
+        bsave2 = Button(axsave, 'Verified as is')
         bsave2.on_clicked(self._save2)
 		
         # interactive redshift value box
@@ -470,8 +470,8 @@ class Verify(Spectrum):
         bnext.on_clicked(self.next)
 
         # save buffer to catalog
-        axsave = plt.axes([0.85, 0.0125, 0.1, 0.05])
-        bsave_file = Button(axsave, 'Save progress')
+        axsave = plt.axes([0.05, 0.0125, 0.15, 0.05])
+        bsave_file = Button(axsave, 'Save buffer to fits')
         bsave_file.on_clicked(self._save_buffer)
 
         # Update emission lines when zooming in
