@@ -219,13 +219,12 @@ class Verify(Spectrum):
             ylims = self.ax.get_ylim()
 
             old_x = self.lines[0].get_xdata()
-            z_past = np.abs(self.emlines_wave[0] - old_x[0])/self.emlines_wave[0]
 
             for line, text in zip(self.lines, self.texts):
                 old_x = line.get_xdata()
                 (x_text, y_text) = text.get_position()
 
-                new_x  = x_text*(1+val)/(1+z_past)
+                new_x  = self.emlines_wave*(1+val)
                 new_y = ylims[1]*(1-self.padding)
 
                 line.set_xdata([new_x for x in old_x])
