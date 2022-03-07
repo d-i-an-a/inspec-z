@@ -220,11 +220,11 @@ class Verify(Spectrum):
 
             old_x = self.lines[0].get_xdata()
 
-            for line, text in zip(self.lines, self.texts):
+            for line, text, wave in zip(self.lines, self.texts, self.emlines_wave):
                 old_x = line.get_xdata()
                 (x_text, y_text) = text.get_position()
 
-                new_x  = self.emlines_wave*(1+val)
+                new_x  = wave*(1+val)
                 new_y = ylims[1]*(1-self.padding)
 
                 line.set_xdata([new_x for x in old_x])
