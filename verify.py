@@ -1,6 +1,7 @@
 from spectrum import Spectrum
 from catalog_io import read_1d, save_file
 from astropy.table import Table
+from astropy.io.ascii import convert_numpy
 import os
 import yaml
 
@@ -52,7 +53,18 @@ class Verify(Spectrum):
         if os.path.exists(self.buffer_name):
 
             # if buffer exists, recover last entry
-            self.buffer = Table.read( self.buffer_name, format=self.config['buffer_format'])
+            converters = {'idx':[convert_numpy(np.int64)], 
+                          'inspecz_id':[convert_numpy(np.int64)],  
+                          'id_':[convert_numpy(np.str)], 
+                          'z':[convert_numpy(np.float)], 
+                          'z_temp':[convert_numpy(np.float)], 
+                          'z_phot':[convert_numpy(np.float)], 
+                          'flag':[convert_numpy(np.int)], 
+                          'flag_temp':[convert_numpy(np.int)], 
+                          'verified':[convert_numpy(np.int)], 
+                          'verified_temp':[convert_numpy(np.int)]}
+                            
+            self.buffer = Table.read( self.buffer_name, format=self.config['buffer_format'], converters=converters) 
             self.buffer.add_index('idx')
 
             # find last entry
@@ -66,7 +78,7 @@ class Verify(Spectrum):
                                         'z', 'z_temp', 'z_phot',
                                         'flag', 'flag_temp', 
                                         'verified', 'verified_temp'),
-                                dtype=('i', np.int64, 'U100',
+                                dtype=(np.int64, np.int64, 'U100',
                                         'f', 'f', 'f',
                                         'i', 'i',
                                         'i', 'i' ))
